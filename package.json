@@ -1,11 +1,17 @@
 {
   "name": "urdfjsx",
+  "description": "A tool to convert URDF into react three fiber JSX component",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "bin": "bin/urdfjsx.js",
+  "repository": "wty-andrew/urdfjsx",
+  "keywords": [
+    "urdf",
+    "react-three-fiber"
+  ],
   "files": [
     "bin",
     "dist"
