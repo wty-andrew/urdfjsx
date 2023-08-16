@@ -33,19 +33,37 @@ const Joint = ({ name, ...props }: JointProps) => (
 )
 `)
 
-export const defineModelProps = parse(`
-interface ModelProps extends MeshProps {
+export const defineSTLModelProps = parse(`
+interface STLModelProps extends MeshProps {
   url: string
 }
 `)
 
-export const defineModelComponent = parse(`
-const Model = ({ url, children, ...props }: ModelProps) => {
+export const defineSTLModelComponent = parse(`
+const STLModel = ({ url, children, ...props }: STLModelProps) => {
   const geometry = useLoader(STLLoader, url)
   return (
     <mesh geometry={geometry} {...props}>
       {children}
     </mesh>
+  )
+}
+`)
+
+export const defineColladaModelProps = parse(`
+interface ColladaModelProps extends GroupProps {
+  url: string
+}
+`)
+
+export const defineColladaModelComponent = parse(`
+const ColladaModel = ({ url, ...props }: ColladaModelProps) => {
+  const collada: Collada = useLoader(ColladaLoader, url)
+  const scene = useMemo(() => collada.scene.clone(), [collada.scene])
+  return (
+    <group {...props}>
+      <primitive object={scene} />
+    </group>
   )
 }
 `)

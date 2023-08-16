@@ -6,6 +6,13 @@ import prettier from 'prettier'
 import * as R from 'ramda'
 
 import type { Dict } from './types.js'
+import { isString, compact } from './utils.js'
+import {
+  eulerToQuaternion,
+  quaternionMultiply,
+  quaternionToEuler,
+  toPrecision,
+} from './math.js'
 import type {
   Collision,
   Joint,
@@ -15,7 +22,6 @@ import type {
   Vector4,
   Visual,
 } from './urdf.js'
-import { isString, compact } from './utils.js'
 
 // TODO: fix in babel 8 (https://github.com/babel/babel/issues/13855)
 const generate = _generate.default
@@ -111,9 +117,6 @@ const importStatement = (
   module: string,
   specifiers: Parameters<typeof t.importDeclaration>[0]
 ) => t.importDeclaration(specifiers, t.stringLiteral(module))
-
-export const defaultImport = (name: string, module: string) =>
-  importStatement(module, [t.importDefaultSpecifier(t.identifier(name))])
 
 export const namedImport = (names: string[], module: string) => {
   const makeSpecifier = (name: string) =>
@@ -215,9 +218,21 @@ export const makeJsxMesh = ({ geometry, origin, material }: Visual) => {
     }
     case 'cylinder': {
       const { radius, length } = geometry
+      // rotate 90 around x-axis because cylinder aligns in z-axis in ROS but y-axis in three
+      const rpy = origin?.rpy || [0, 0, 0]
+      const quat = quaternionMultiply(
+        eulerToQuaternion(rpy, 'ZYX'),
+        eulerToQuaternion([Math.PI / 2, 0, 0], 'XYZ')
+      )
+      const rotation = R.map(toPrecision(5), quaternionToEuler(quat, 'XYZ'))
+
       return makeJsxElement(
         'Cylinder',
-        [makeJsxAttr('args', [radius, radius, length]), ...transformAttrs],
+        compact([
+          makeJsxAttr('args', [radius, radius, length]),
+          origin?.xyz && makeJsxAttr('position', origin.xyz),
+          makeJsxAttr('rotation', rotation),
+        ]),
         [jsxMaterial]
       )
     }
@@ -231,15 +246,17 @@ export const makeJsxMesh = ({ geometry, origin, material }: Visual) => {
     }
     case 'mesh': {
       const { filename, scale } = geometry
-      return makeJsxElement(
-        'Model',
-        compact([
-          makeJsxAttr('url', callResolve(filename)),
-          ...transformAttrs,
-          scale && makeJsxAttr('scale', scale),
-        ]),
-        [jsxMaterial]
-      )
+      const attributes = compact([
+        makeJsxAttr('url', callResolve(filename)),
+        ...transformAttrs,
+        scale && makeJsxAttr('scale', scale),
+      ])
+
+      if (filename.endsWith('.dae')) {
+        return makeJsxElement('ColladaModel', attributes)
+      } else {
+        return makeJsxElement('STLModel', attributes, [jsxMaterial])
+      }
     }
   }
 }

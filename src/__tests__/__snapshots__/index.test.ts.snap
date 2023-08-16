@@ -1,9 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`URDF to TSX conversion 1`] = `
-import React from 'react'
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader'
-import { GroupProps, MeshProps, useLoader } from '@react-three/fiber'
+import { useMemo } from 'react'
+import {
+  Collada,
+  ColladaLoader,
+} from 'three/examples/jsm/loaders/ColladaLoader.js'
+import { GroupProps, useLoader } from '@react-three/fiber'
 import { Box, Cylinder, Sphere } from '@react-three/drei'
 
 const resolve = (url: string) => url
@@ -22,23 +25,24 @@ const Joint = ({ name, ...props }: JointProps) => (
   <group name={name} {...props} />
 )
 
-interface ModelProps extends MeshProps {
+interface ColladaModelProps extends GroupProps {
   url: string
 }
 
-const Model = ({ url, children, ...props }: ModelProps) => {
-  const geometry = useLoader(STLLoader, url)
+const ColladaModel = ({ url, ...props }: ColladaModelProps) => {
+  const collada: Collada = useLoader(ColladaLoader, url)
+  const scene = useMemo(() => collada.scene.clone(), [collada.scene])
   return (
-    <mesh geometry={geometry} {...props}>
-      {children}
-    </mesh>
+    <group {...props}>
+      <primitive object={scene} />
+    </group>
   )
 }
 
 const Robot = (props: GroupProps) => (
   <group name="visual" {...props}>
     <Link name="base_link">
-      <Cylinder args={[0.2, 0.2, 0.6]}>
+      <Cylinder args={[0.2, 0.2, 0.6]} rotation={[1.5708, 0, 0]}>
         <meshStandardMaterial color={[0, 0, 0.8]} />
       </Cylinder>
       <Joint name="base_to_right_leg" position={[0, -0.22, 0.25]}>
@@ -64,7 +68,7 @@ const Robot = (props: GroupProps) => (
                   <Cylinder
                     args={[0.035, 0.035, 0.1]}
                     position={[0, 0, 0]}
-                    rotation={[1.57075, 0, 0, 'ZYX']}
+                    rotation={[3.14155, 0, 0]}
                   >
                     <meshStandardMaterial color={[0, 0, 0]} />
                   </Cylinder>
@@ -79,7 +83,7 @@ const Robot = (props: GroupProps) => (
                   <Cylinder
                     args={[0.035, 0.035, 0.1]}
                     position={[0, 0, 0]}
-                    rotation={[1.57075, 0, 0, 'ZYX']}
+                    rotation={[3.14155, 0, 0]}
                   >
                     <meshStandardMaterial color={[0, 0, 0]} />
                   </Cylinder>
@@ -112,7 +116,7 @@ const Robot = (props: GroupProps) => (
                   <Cylinder
                     args={[0.035, 0.035, 0.1]}
                     position={[0, 0, 0]}
-                    rotation={[1.57075, 0, 0, 'ZYX']}
+                    rotation={[3.14155, 0, 0]}
                   >
                     <meshStandardMaterial color={[0, 0, 0]} />
                   </Cylinder>
@@ -127,7 +131,7 @@ const Robot = (props: GroupProps) => (
                   <Cylinder
                     args={[0.035, 0.035, 0.1]}
                     position={[0, 0, 0]}
-                    rotation={[1.57075, 0, 0, 'ZYX']}
+                    rotation={[3.14155, 0, 0]}
                   >
                     <meshStandardMaterial color={[0, 0, 0]} />
                   </Cylinder>
@@ -146,7 +150,7 @@ const Robot = (props: GroupProps) => (
           <Cylinder
             args={[0.01, 0.01, 0.2]}
             position={[0.1, 0, 0]}
-            rotation={[0, 1.57075, 0, 'ZYX']}
+            rotation={[1.5708, 0, -1.57075]}
           >
             <meshStandardMaterial color={[1, 1, 1]} />
           </Cylinder>
@@ -156,22 +160,18 @@ const Robot = (props: GroupProps) => (
             rotation={[0, 0, 0, 'ZYX']}
           >
             <Link name="left_gripper">
-              <Model
+              <ColladaModel
                 url={resolve('/urdf_tutorial/meshes/l_finger.dae')}
                 position={[0, 0, 0]}
                 rotation={[0, 0, 0, 'ZYX']}
-              >
-                <meshStandardMaterial color={[1, 1, 1]} />
-              </Model>
+              />
               <Joint name="left_tip_joint">
                 <Link name="left_tip">
-                  <Model
+                  <ColladaModel
                     url={resolve('/urdf_tutorial/meshes/l_finger_tip.dae')}
                     position={[0.09137, 0.00495, 0]}
                     rotation={[0, 0, 0, 'ZYX']}
-                  >
-                    <meshStandardMaterial color={[1, 1, 1]} />
-                  </Model>
+                  />
                 </Link>
               </Joint>
             </Link>
@@ -182,22 +182,18 @@ const Robot = (props: GroupProps) => (
             rotation={[0, 0, 0, 'ZYX']}
           >
             <Link name="right_gripper">
-              <Model
+              <ColladaModel
                 url={resolve('/urdf_tutorial/meshes/l_finger.dae')}
                 position={[0, 0, 0]}
                 rotation={[-3.1415, 0, 0, 'ZYX']}
-              >
-                <meshStandardMaterial color={[1, 1, 1]} />
-              </Model>
+              />
               <Joint name="right_tip_joint">
                 <Link name="right_tip">
-                  <Model
+                  <ColladaModel
                     url={resolve('/urdf_tutorial/meshes/l_finger_tip.dae')}
                     position={[0.09137, 0.00495, 0]}
                     rotation={[-3.1415, 0, 0, 'ZYX']}
-                  >
-                    <meshStandardMaterial color={[1, 1, 1]} />
-                  </Model>
+                  />
                 </Link>
               </Joint>
             </Link>

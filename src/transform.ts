@@ -13,7 +13,6 @@ import type {
 import { getRootLink } from './urdf.js'
 import { compact, isString, isNotEmpty, size } from './utils.js'
 import {
-  defaultImport,
   namedImport,
   exportDefault,
   declareUseTexture,
@@ -32,14 +31,18 @@ import {
   defineLinkComponent,
   defineJointProps,
   defineJointComponent,
-  defineModelProps,
-  defineModelComponent,
+  defineSTLModelProps,
+  defineSTLModelComponent,
+  defineColladaModelProps,
+  defineColladaModelComponent,
 } from './stub.js'
 
 const TEXTURE_PREFIX = '_texture'
 
 const ALL_IMPORTS: [string, string[]][] = [
-  ['three/examples/jsm/loaders/STLLoader', ['STLLoader']],
+  ['react', ['useMemo']],
+  ['three/examples/jsm/loaders/STLLoader.js', ['STLLoader']],
+  ['three/examples/jsm/loaders/ColladaLoader.js', ['Collada', 'ColladaLoader']],
   ['@react-three/fiber', ['useLoader', 'GroupProps', 'MeshProps']],
   ['@react-three/drei', ['useTexture', 'Box', 'Cylinder', 'Sphere']],
 ]
@@ -50,8 +53,10 @@ const ALL_DECLARATIONS: [string, t.Statement][] = [
   ['defineLinkComponent', defineLinkComponent],
   ['defineJointProps', defineJointProps],
   ['defineJointComponent', defineJointComponent],
-  ['defineModelProps', defineModelProps],
-  ['defineModelComponent', defineModelComponent],
+  ['defineSTLModelProps', defineSTLModelProps],
+  ['defineSTLModelComponent', defineSTLModelComponent],
+  ['defineColladaModelProps', defineColladaModelProps],
+  ['defineColladaModelComponent', defineColladaModelComponent],
 ]
 
 const DEPENDENCY: Dict<string[]> = {
@@ -62,13 +67,23 @@ const DEPENDENCY: Dict<string[]> = {
   Sphere: ['Sphere'],
   Link: ['GroupProps', 'defineLinkProps', 'defineLinkComponent'],
   Joint: ['GroupProps', 'defineJointProps', 'defineJointComponent'],
-  Model: [
+  STLModel: [
     'MeshProps',
     'useLoader',
     'STLLoader',
     'defineResolveFunction',
-    'defineModelProps',
-    'defineModelComponent',
+    'defineSTLModelProps',
+    'defineSTLModelComponent',
+  ],
+  ColladaModel: [
+    'GroupProps',
+    'useLoader',
+    'useMemo',
+    'Collada',
+    'ColladaLoader',
+    'defineResolveFunction',
+    'defineColladaModelProps',
+    'defineColladaModelComponent',
   ],
 }
 
@@ -128,6 +143,9 @@ const populateMaterial = (
         }
 
         const { name, color, texture } = visual.material!
+        if (color) {
+          return addToResult(setMaterial(visual, color))
+        }
         if (name) {
           const { [name]: textureOrColor } = globalMaterial
           if (!textureOrColor) {
@@ -136,9 +154,6 @@ const populateMaterial = (
 
           const nameOrColor = isString(textureOrColor) ? name : textureOrColor
           return addToResult(setMaterial(visual, nameOrColor))
-        }
-        if (color) {
-          return addToResult(setMaterial(visual, color))
         }
 
         const textureName = `${TEXTURE_PREFIX}${size(localTexture)}`
@@ -210,7 +225,6 @@ export const transform = (robot: Robot) => {
   )
 
   const program = t.program([
-    defaultImport('React', 'react'),
     ...makeImportStatements(deps),
     ...R.map(withLeadingBlankComment, makeDeclarationStatements(deps)),
     withLeadingBlankComment(defineRobotComponent),
