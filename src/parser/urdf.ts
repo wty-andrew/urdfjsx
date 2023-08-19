@@ -1,8 +1,27 @@
 import * as R from 'ramda'
 
-import type { Dict, NestedArray, RequiredPick } from './types.js'
-import { isString, parseNumbers } from './utils.js'
-import { Element, parseXML } from './xml.js'
+import type {
+  Dict,
+  NestedArray,
+  Vector3,
+  Vector4,
+  Box,
+  Collision,
+  Cylinder,
+  Joint,
+  JointType,
+  Limit,
+  Link,
+  Material,
+  Mesh,
+  Origin,
+  Robot,
+  Sphere,
+  Visual,
+} from '../types/index.js'
+import { JOINT_TYPES } from '../constants/index.js'
+import { isString, parseNumbers } from '../utils/index.js'
+import { type Element, parseXML } from './xml.js'
 
 // only process a subset of urdf elements, see http://wiki.ros.org/urdf/XML for full spec
 const CHILD_ELEMENTS: Dict<string[]> = {
@@ -14,104 +33,6 @@ const CHILD_ELEMENTS: Dict<string[]> = {
   geometry: ['box', 'cylinder', 'sphere', 'mesh'],
   material: ['color', 'texture'],
 }
-
-const JOINT_TYPES = [
-  'revolute',
-  'continuous',
-  'prismatic',
-  'fixed',
-  'floating',
-  'planar',
-] as const
-
-export type JointType = (typeof JOINT_TYPES)[number]
-
-export type Vector3 = [number, number, number]
-
-export type Vector4 = [number, number, number, number]
-
-export type Color = Vector4
-
-export type Origin = {
-  xyz?: Vector3
-  rpy?: Vector3
-}
-
-export type Limit = {
-  upper: number
-  lower: number
-}
-
-export type Joint = {
-  name: string
-  type: JointType
-  origin?: Origin
-  parent: string
-  child: string
-  axis?: Vector3
-  limit?: Limit
-}
-
-export type Material = {
-  name?: string
-  color?: Color
-  texture?: string
-}
-
-export type KnownMaterial =
-  | RequiredPick<Material, 'name'>
-  | RequiredPick<Material, 'color'>
-
-export type Box = {
-  type: 'box'
-  size: Vector3
-}
-
-export type Cylinder = {
-  type: 'cylinder'
-  radius: number
-  length: number
-}
-
-export type Sphere = {
-  type: 'sphere'
-  radius: number
-}
-
-export type Mesh = {
-  type: 'mesh'
-  filename: string
-  scale?: Vector3
-}
-
-export type Geometry = Box | Cylinder | Sphere | Mesh
-
-export type Visual = {
-  origin?: Origin
-  geometry: Geometry
-  material?: Material
-}
-
-export type Collision = {
-  origin?: Origin
-  geometry: Geometry
-}
-
-export type Link = {
-  name: string
-  type?: string
-  visual: Visual[]
-  collision: Collision[]
-}
-
-export type Robot = {
-  name: string
-  link: Link[]
-  joint: Joint[]
-  material: Material[]
-}
-
-//
 
 type Result<T = any> =
   | { success: true; value: T }
@@ -453,13 +374,4 @@ export const parseURDF = (text: string) => {
     throw new Error(formatError(result.errors))
   }
   return result.value
-}
-
-export const getRootLink = (robot: Robot) => {
-  const isChildLink = R.includes(R.__, R.pluck('child', robot.joint))
-  const rootLinks = R.reject(isChildLink, R.pluck('name', robot.link))
-  if (rootLinks.length !== 1) {
-    throw new Error('URDF must have only one root')
-  }
-  return rootLinks[0]
 }

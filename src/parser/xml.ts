@@ -1,7 +1,7 @@
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 import * as R from 'ramda'
 
-import type { Dict } from './types.js'
+import type { Dict } from '../types/index.js'
 
 type XMLNode = { [tag: string]: XMLNode[] } & {
   ':@'?: Dict<string>

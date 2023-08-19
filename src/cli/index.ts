@@ -3,9 +3,7 @@ import path from 'node:path'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 
-import { parseURDF } from './urdf.js'
-import { transform } from './transform.js'
-import { generateCode, Target } from './generator.js'
+import { type Target, parseURDF, transform, generateCode } from '../index.js'
 
 const fileExist = (path: string) =>
   fs.existsSync(path) && fs.lstatSync(path).isFile()

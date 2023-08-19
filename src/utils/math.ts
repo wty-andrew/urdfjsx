@@ -1,5 +1,7 @@
 import * as R from 'ramda'
 
+import type { Vector3, Vector4 } from '../types/index.js'
+
 export const round = (num: number, precision: number) =>
   parseFloat(num.toFixed(precision))
 
@@ -8,9 +10,9 @@ export const toPrecision = R.flip(round)
 export const clamp = (value: number, lower: number, upper: number) =>
   Math.max(lower, Math.min(value, upper))
 
-type Quaternion = [number, number, number, number] // w, x, y, z
+type Quaternion = Vector4 // x, y, z, w
 
-type Euler = [number, number, number]
+type Euler = Vector3
 
 type EulerOrder = 'XYZ' | 'ZYX' // other not used
 
@@ -30,34 +32,33 @@ export const eulerToQuaternion = (
   switch (order) {
     case 'XYZ':
       return [
-        c1 * c2 * c3 - s1 * s2 * s3,
         s1 * c2 * c3 + c1 * s2 * s3,
         c1 * s2 * c3 - s1 * c2 * s3,
         c1 * c2 * s3 + s1 * s2 * c3,
+        c1 * c2 * c3 - s1 * s2 * s3,
       ]
     case 'ZYX':
       return [
-        c1 * c2 * c3 + s1 * s2 * s3,
         s1 * c2 * c3 - c1 * s2 * s3,
         c1 * s2 * c3 + s1 * c2 * s3,
         c1 * c2 * s3 - s1 * s2 * c3,
+        c1 * c2 * c3 + s1 * s2 * s3,
       ]
   }
 }
 
 export const quaternionMultiply = (
-  [w1, x1, y1, z1]: Quaternion,
-  [w2, x2, y2, z2]: Quaternion
-): Quaternion => {
-  const w = -x1 * x2 - y1 * y2 - z1 * z2 + w1 * w2
-  const x = x1 * w2 + y1 * z2 - z1 * y2 + w1 * x2
-  const y = -x1 * z2 + y1 * w2 + z1 * x2 + w1 * y2
-  const z = x1 * y2 - y1 * x2 + z1 * w2 + w1 * z2
-  return [w, x, y, z]
-}
+  [x1, y1, z1, w1]: Quaternion,
+  [x2, y2, z2, w2]: Quaternion
+): Quaternion => [
+  x1 * w2 + y1 * z2 - z1 * y2 + w1 * x2,
+  -x1 * z2 + y1 * w2 + z1 * x2 + w1 * y2,
+  x1 * y2 - y1 * x2 + z1 * w2 + w1 * z2,
+  -x1 * x2 - y1 * y2 - z1 * z2 + w1 * w2,
+]
 
 export const quaternionToEuler = (
-  [qw, qx, qy, qz]: Quaternion,
+  [qx, qy, qz, qw]: Quaternion,
   order: EulerOrder
 ): Euler => {
   const wx = qw * qx

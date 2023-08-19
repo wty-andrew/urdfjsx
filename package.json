@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "nodemon src/cli.ts",
+    "dev": "nodemon src/cli/index.ts",
     "build": "tsc --project tsconfig.build.json",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest",
     "lint": "eslint src",
