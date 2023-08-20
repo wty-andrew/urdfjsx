@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import * as THREE from 'three'
 import {
   Collada,
   ColladaLoader,
 } from 'three/examples/jsm/loaders/ColladaLoader.js'
+import { forwardRef, useMemo } from 'react'
 import { GroupProps, useLoader } from '@react-three/fiber'
 import { Box, Cylinder, Sphere } from '@react-three/drei'
 
@@ -21,9 +22,9 @@ interface JointProps extends GroupProps {
   name: string
 }
 
-const Joint = ({ name, ...props }: JointProps) => (
-  <group name={name} {...props} />
-)
+const Joint = forwardRef<THREE.Group, JointProps>(({ name, ...props }, ref) => (
+  <group ref={ref} name={name} {...props} />
+))
 
 interface ColladaModelProps extends GroupProps {
   url: string
@@ -39,8 +40,102 @@ const ColladaModel = ({ url, ...props }: ColladaModelProps) => {
   )
 }
 
-const Robot = (props: GroupProps) => (
-  <group name="visual" {...props}>
+export type JointSchema =
+  | {
+      type: 'fixed' | 'floating' | 'planar'
+    }
+  | {
+      type: 'continuous'
+      axis: THREE.Vector3
+      offset: THREE.Quaternion
+    }
+  | {
+      type: 'revolute'
+      axis: THREE.Vector3
+      offset: THREE.Quaternion
+      lower: number
+      upper: number
+    }
+  | {
+      type: 'prismatic'
+      axis: THREE.Vector3
+      offset: THREE.Vector3
+      lower: number
+      upper: number
+    }
+
+export const jointSchema: Record<string, JointSchema> = {
+  base_to_right_leg: {
+    type: 'fixed',
+  },
+  right_base_joint: {
+    type: 'fixed',
+  },
+  right_front_wheel_joint: {
+    type: 'continuous',
+    axis: new THREE.Vector3(0, 1, 0),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+  },
+  right_back_wheel_joint: {
+    type: 'continuous',
+    axis: new THREE.Vector3(0, 1, 0),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+  },
+  base_to_left_leg: {
+    type: 'fixed',
+  },
+  left_base_joint: {
+    type: 'fixed',
+  },
+  left_front_wheel_joint: {
+    type: 'continuous',
+    axis: new THREE.Vector3(0, 1, 0),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+  },
+  left_back_wheel_joint: {
+    type: 'continuous',
+    axis: new THREE.Vector3(0, 1, 0),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+  },
+  gripper_extension: {
+    type: 'prismatic',
+    axis: new THREE.Vector3(1, 0, 0),
+    offset: new THREE.Vector3(0.19, 0, 0.2),
+    lower: -0.38,
+    upper: 0,
+  },
+  left_gripper_joint: {
+    type: 'revolute',
+    axis: new THREE.Vector3(0, 0, 1),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+    lower: 0,
+    upper: 0.548,
+  },
+  left_tip_joint: {
+    type: 'fixed',
+  },
+  right_gripper_joint: {
+    type: 'revolute',
+    axis: new THREE.Vector3(0, 0, -1),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+    lower: 0,
+    upper: 0.548,
+  },
+  right_tip_joint: {
+    type: 'fixed',
+  },
+  head_swivel: {
+    type: 'continuous',
+    axis: new THREE.Vector3(0, 0, 1),
+    offset: new THREE.Quaternion(0, 0, 0, 1),
+  },
+  tobox: {
+    type: 'fixed',
+  },
+}
+
+const Robot = forwardRef<THREE.Group, GroupProps>((props, ref) => (
+  <group ref={ref} name="visual" {...props}>
     <Link name="base_link">
       <Cylinder args={[0.2, 0.2, 0.6]} rotation={[1.5708, 0, 0]}>
         <meshStandardMaterial color={[0, 0, 0.8]} />
@@ -202,7 +297,8 @@ const Robot = (props: GroupProps) => (
       </Joint>
       <Joint name="head_swivel" position={[0, 0, 0.3]}>
         <Link name="head">
-          <Sphere args={[0.2]}>
+          {/* make it slightly smaller than body cylinder */}
+          <Sphere args={[0.199]}>
             <meshStandardMaterial color={[1, 1, 1]} />
           </Sphere>
           <Joint name="tobox" position={[0.1814, 0, 0.1414]}>
@@ -216,6 +312,6 @@ const Robot = (props: GroupProps) => (
       </Joint>
     </Link>
   </group>
-)
+))
 
 export default Robot
