@@ -156,6 +156,7 @@ export const makeJsxRobot = (robot: Robot) => {
   return makeJsxElement(
     'group',
     [
+      makeJsxAttr('ref', t.identifier('ref')),
       makeJsxAttr('name', robot.name),
       t.jsxSpreadAttribute(t.identifier('props')),
     ],

@@ -4,12 +4,11 @@ import * as R from 'ramda'
 import type { Dict } from '../types/index.js'
 import { parseStatement } from '../parser/index.js'
 import {
-  makeArrowFunction,
   makeCallExpression,
   makeConstDeclaration,
   makeObjectProperty,
-  makeParameter,
   namedImport,
+  namespaceImport,
 } from '../ast/index.js'
 import { callResolve } from './robot.js'
 
@@ -36,8 +35,10 @@ interface JointProps extends GroupProps {
 `)
 
 export const defineJointComponent = parseStatement(`
-const Joint = ({ name, ...props }: JointProps) => (
-  <group name={name} {...props} />
+const Joint = forwardRef<THREE.Group, JointProps>(
+  ({ name, ...props }, ref) => (
+    <group ref={ref} name={name} {...props} />
+  )
 )
 `)
 
@@ -76,15 +77,43 @@ const ColladaModel = ({ url, ...props }: ColladaModelProps) => {
 }
 `)
 
-const ALL_IMPORTS: [string, string[]][] = [
-  ['react', ['useMemo']],
+export const defineJointSchema = parseStatement(`
+export type JointSchema =
+  | { type: 'fixed' | 'floating' | 'planar' }
+  | {
+      type: 'continuous'
+      axis: THREE.Vector3
+      offset: THREE.Quaternion
+    }
+  | {
+      type: 'revolute'
+      axis: THREE.Vector3
+      offset: THREE.Quaternion
+      lower: number
+      upper: number
+    }
+  | {
+      type: 'prismatic'
+      axis: THREE.Vector3
+      offset: THREE.Vector3
+      lower: number
+      upper: number
+    }
+`)
+
+const REQUIRED_IMPORTS: t.ImportDeclaration[] = [
+  namespaceImport('THREE', 'three'),
+]
+
+const OPTIONAL_IMPORTS: [string, string[]][] = [
   ['three/examples/jsm/loaders/STLLoader.js', ['STLLoader']],
   ['three/examples/jsm/loaders/ColladaLoader.js', ['Collada', 'ColladaLoader']],
+  ['react', ['forwardRef', 'useMemo']],
   ['@react-three/fiber', ['useLoader', 'GroupProps', 'MeshProps']],
   ['@react-three/drei', ['useTexture', 'Box', 'Cylinder', 'Sphere']],
 ]
 
-const ALL_DECLARATIONS: [string, t.Statement][] = [
+const OPTIONAL_DECLARATIONS: [string, t.Statement][] = [
   ['defineResolveFunction', defineResolveFunction],
   ['defineLinkProps', defineLinkProps],
   ['defineLinkComponent', defineLinkComponent],
@@ -98,12 +127,17 @@ const ALL_DECLARATIONS: [string, t.Statement][] = [
 
 const DEPENDENCY: Dict<string[]> = {
   useTexture: ['useTexture', 'defineResolveFunction'],
-  group: ['GroupProps'],
+  group: ['forwardRef', 'GroupProps'],
   Box: ['Box'],
   Cylinder: ['Cylinder'],
   Sphere: ['Sphere'],
   Link: ['GroupProps', 'defineLinkProps', 'defineLinkComponent'],
-  Joint: ['GroupProps', 'defineJointProps', 'defineJointComponent'],
+  Joint: [
+    'GroupProps',
+    'defineJointProps',
+    'defineJointComponent',
+    'forwardRef',
+  ],
   STLModel: [
     'MeshProps',
     'useLoader',
@@ -130,15 +164,15 @@ export const dependencies = (targets: string[]) => {
 }
 
 export const makeImportStatements = (deps: string[]) =>
-  ALL_IMPORTS.reduce((statements, [module, allNames]) => {
+  OPTIONAL_IMPORTS.reduce((statements, [module, allNames]) => {
     const names = R.intersection(allNames, deps)
     return R.isEmpty(names)
       ? statements
       : [...statements, namedImport(R.sortBy(R.identity, names), module)]
-  }, [] as t.Statement[])
+  }, REQUIRED_IMPORTS)
 
 export const makeDeclarationStatements = (deps: string[]) =>
-  ALL_DECLARATIONS.reduce(
+  OPTIONAL_DECLARATIONS.reduce(
     (statements, [name, statement]) =>
       deps.includes(name) ? [...statements, statement] : statements,
     [] as t.Statement[]
@@ -160,13 +194,22 @@ export const defineRobotComponent = (
   jsxRobot: t.JSXElement,
   texture: Dict<string>
 ) =>
-  makeArrowFunction(
-    'Robot',
-    [makeParameter('props', 'GroupProps')],
-    R.isEmpty(texture)
-      ? jsxRobot
-      : t.blockStatement([
-          declareUseTexture(texture),
-          t.returnStatement(jsxRobot),
-        ])
-  )
+  makeConstDeclaration('Robot', {
+    ...makeCallExpression('forwardRef', [
+      t.arrowFunctionExpression(
+        [t.identifier('props'), t.identifier('ref')],
+        R.isEmpty(texture)
+          ? jsxRobot
+          : t.blockStatement([
+              declareUseTexture(texture),
+              t.returnStatement(jsxRobot),
+            ])
+      ),
+    ]),
+    typeParameters: t.tsTypeParameterInstantiation([
+      t.tsTypeReference(
+        t.tsQualifiedName(t.identifier('THREE'), t.identifier('Group'))
+      ),
+      t.tsTypeReference(t.identifier('GroupProps')),
+    ]),
+  })

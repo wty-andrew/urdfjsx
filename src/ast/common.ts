@@ -61,6 +61,9 @@ export const namedImport = (names: string[], module: string) => {
   return importStatement(module, R.map(makeSpecifier, names))
 }
 
+export const namespaceImport = (name: string, module: string) =>
+  importStatement(module, [t.importNamespaceSpecifier(t.identifier(name))])
+
 export const exportDefault = (name: string) =>
   t.exportDefaultDeclaration(t.identifier(name))
 
@@ -72,21 +75,13 @@ export const makeConstDeclaration = (
     t.variableDeclarator(t.identifier(varname), expresion),
   ])
 
-export const makeParameter = (
+export const makeAnnotatedIdentifier = (
   name: string,
-  annotation: string
+  annotation: t.TSType
 ): t.Identifier => ({
   ...t.identifier(name),
-  typeAnnotation: t.tsTypeAnnotation(
-    t.tsTypeReference(t.identifier(annotation))
-  ),
+  typeAnnotation: t.tsTypeAnnotation(annotation),
 })
-
-export const makeArrowFunction = (
-  name: string,
-  params: Parameters<typeof t.arrowFunctionExpression>[0],
-  body: Parameters<typeof t.arrowFunctionExpression>[1]
-) => makeConstDeclaration(name, t.arrowFunctionExpression(params, body))
 
 export const makeCallExpression = (
   callee: string,

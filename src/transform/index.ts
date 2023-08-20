@@ -1,3 +1,4 @@
+export * from './joint.js'
 export * from './material.js'
 export * from './robot.js'
 export * from './statements.js'
@@ -9,11 +10,13 @@ import type { Robot } from '../types/index.js'
 import { compact, isString, size } from '../utils/index.js'
 import { exportDefault, withLeadingBlankComment } from '../ast/index.js'
 import { materialLookup, populateMaterial } from './material.js'
+import { declareJointSchema } from './joint.js'
 import { makeJsxRobot, uniqueComponents } from './robot.js'
 import {
   dependencies,
   makeImportStatements,
   makeDeclarationStatements,
+  defineJointSchema,
   defineRobotComponent,
 } from './statements.js'
 
@@ -31,8 +34,12 @@ export const transform = (robot: Robot) => {
 
   return t.program([
     ...makeImportStatements(deps),
-    ...R.map(withLeadingBlankComment, makeDeclarationStatements(deps)),
-    withLeadingBlankComment(defineRobotComponent(jsxRobot, texture)),
-    withLeadingBlankComment(exportDefault('Robot')),
+    ...R.map(withLeadingBlankComment, [
+      ...makeDeclarationStatements(deps),
+      defineJointSchema,
+      declareJointSchema(robot.joint),
+      defineRobotComponent(jsxRobot, texture),
+      exportDefault('Robot'),
+    ]),
   ])
 }
