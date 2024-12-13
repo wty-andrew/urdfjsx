@@ -1,6 +1,6 @@
-import * as t from '@babel/types'
 import _generate from '@babel/generator'
 import _traverse from '@babel/traverse'
+import * as t from '@babel/types'
 import prettier from 'prettier'
 import ts from 'typescript'
 

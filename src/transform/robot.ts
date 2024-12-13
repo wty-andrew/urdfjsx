@@ -1,11 +1,16 @@
 import * as t from '@babel/types'
 import * as R from 'ramda'
 
+import {
+  makeCallExpression,
+  makeJsxAttr,
+  makeJsxElement,
+} from '../ast/index.js'
 import type {
   Collision,
   Joint,
-  Link,
   KnownMaterial,
+  Link,
   Origin,
   Robot,
   Vector4,
@@ -18,11 +23,6 @@ import {
   quaternionToEuler,
   toPrecision,
 } from '../utils/index.js'
-import {
-  makeCallExpression,
-  makeJsxAttr,
-  makeJsxElement,
-} from '../ast/index.js'
 
 const DEFAULT_MATERIAL: KnownMaterial = { color: [1, 1, 1, 1] }
 
@@ -111,11 +111,9 @@ export const makeJsxMesh = ({ geometry, origin, material }: Visual) => {
         scale && makeJsxAttr('scale', scale),
       ])
 
-      if (filename.endsWith('.dae')) {
-        return makeJsxElement('ColladaModel', attributes)
-      } else {
-        return makeJsxElement('STLModel', attributes, [jsxMaterial])
-      }
+      return filename.endsWith('.dae')
+        ? makeJsxElement('ColladaModel', attributes)
+        : makeJsxElement('STLModel', attributes, [jsxMaterial])
     }
   }
 }

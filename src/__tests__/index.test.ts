@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { parseURDF, transform, generateCode, Target } from '../index.js'
+import { Target, generateCode, parseURDF, transform } from '../index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

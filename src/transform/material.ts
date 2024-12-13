@@ -1,8 +1,8 @@
 import * as R from 'ramda'
 
 import type {
-  Dict,
   Color,
+  Dict,
   KnownMaterial,
   Link,
   Material,

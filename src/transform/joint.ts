@@ -1,14 +1,14 @@
 import * as t from '@babel/types'
 import * as R from 'ramda'
 
+import { makeAnnotatedIdentifier, makeObjectProperty } from '../ast/index.js'
 import type { Joint, Limit, Vector3, Vector4 } from '../types/index.js'
 import { eulerToQuaternion } from '../utils/index.js'
-import { makeAnnotatedIdentifier, makeObjectProperty } from '../ast/index.js'
 
 const makeThreeObj = (type: string, ...args: number[]) =>
   t.newExpression(
     t.memberExpression(t.identifier('THREE'), t.identifier(type)),
-    R.map(t.numericLiteral, args)
+    R.map<number, t.NumericLiteral>(t.numericLiteral, args)
   )
 
 const makeThreeVector3 = (vec: Vector3) => makeThreeObj('Vector3', ...vec)
@@ -69,7 +69,9 @@ export const declareJointSchema = (joints: Joint[]) => {
     t.variableDeclaration('const', [
       t.variableDeclarator(
         makeAnnotatedIdentifier('jointSchema', annotation),
-        t.objectExpression(R.map(makeJointSchema, joints))
+        t.objectExpression(
+          R.map<Joint, t.ObjectProperty>(makeJointSchema, joints)
+        )
       ),
     ])
   )

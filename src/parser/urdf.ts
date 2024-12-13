@@ -1,25 +1,25 @@
 import * as R from 'ramda'
 
+import { JOINT_TYPES } from '../constants/index.js'
 import type {
-  Dict,
-  NestedArray,
-  Vector3,
-  Vector4,
   Box,
   Collision,
   Cylinder,
+  Dict,
   Joint,
   JointType,
   Limit,
   Link,
   Material,
   Mesh,
+  NestedArray,
   Origin,
   Robot,
   Sphere,
+  Vector3,
+  Vector4,
   Visual,
 } from '../types/index.js'
-import { JOINT_TYPES } from '../constants/index.js'
 import { isString, parseNumbers } from '../utils/index.js'
 import { type Element, parseXML } from './xml.js'
 
@@ -54,7 +54,7 @@ const float = (text?: string): Result<number> => {
   if (text === undefined) return failure(['Missing'])
 
   try {
-    return success(parseFloat(text))
+    return success(Number.parseFloat(text))
   } catch (error) {
     return failure([`Invalid number: "${text}"`])
   }

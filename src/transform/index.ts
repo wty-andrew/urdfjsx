@@ -6,18 +6,18 @@ export * from './statements.js'
 import * as t from '@babel/types'
 import * as R from 'ramda'
 
+import { exportDefault, withLeadingBlankComment } from '../ast/index.js'
 import type { Robot } from '../types/index.js'
 import { compact, isString, size } from '../utils/index.js'
-import { exportDefault, withLeadingBlankComment } from '../ast/index.js'
-import { materialLookup, populateMaterial } from './material.js'
 import { declareJointSchema } from './joint.js'
+import { materialLookup, populateMaterial } from './material.js'
 import { makeJsxRobot, uniqueComponents } from './robot.js'
 import {
-  dependencies,
-  makeImportStatements,
-  makeDeclarationStatements,
   defineJointSchema,
   defineRobotComponent,
+  dependencies,
+  makeDeclarationStatements,
+  makeImportStatements,
 } from './statements.js'
 
 export const transform = (robot: Robot) => {

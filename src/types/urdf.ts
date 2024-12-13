@@ -1,4 +1,4 @@
-import { JOINT_TYPES } from '../constants/index.js'
+import type { JOINT_TYPES } from '../constants/index.js'
 import type { RequiredPick } from './common.js'
 
 export type Vector3 = [number, number, number]

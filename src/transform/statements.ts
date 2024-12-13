@@ -1,8 +1,6 @@
 import * as t from '@babel/types'
 import * as R from 'ramda'
 
-import type { Dict } from '../types/index.js'
-import { parseStatement } from '../parser/index.js'
 import {
   makeCallExpression,
   makeConstDeclaration,
@@ -10,6 +8,8 @@ import {
   namedImport,
   namespaceImport,
 } from '../ast/index.js'
+import { parseStatement } from '../parser/index.js'
+import type { Dict } from '../types/index.js'
 import { callResolve } from './robot.js'
 
 export const defineResolveFunction = parseStatement(`

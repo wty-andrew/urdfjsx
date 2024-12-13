@@ -1,4 +1,4 @@
-import { XMLParser, XMLBuilder } from 'fast-xml-parser'
+import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 import * as R from 'ramda'
 
 import type { Dict } from '../types/index.js'

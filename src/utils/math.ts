@@ -3,7 +3,7 @@ import * as R from 'ramda'
 import type { Vector3, Vector4 } from '../types/index.js'
 
 export const round = (num: number, precision: number) =>
-  parseFloat(num.toFixed(precision))
+  Number.parseFloat(num.toFixed(precision))
 
 export const toPrecision = R.flip(round)
 
