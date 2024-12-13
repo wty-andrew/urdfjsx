@@ -93,7 +93,7 @@ export const makeObjectProperty = (
   value: Primitive | Parameters<typeof t.objectProperty>[1]
 ) =>
   t.objectProperty(
-    t.identifier(key),
+    t.stringLiteral(key),
     t.isNode(value) ? value : makeLiteral(value)
   )
 
