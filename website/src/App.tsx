@@ -1,9 +1,9 @@
-import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stage } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 import { useControls } from 'leva'
 
-import useJointControl from './hooks/useJointControl'
 import Robot, { jointSchema, type JointSchema } from './components/R2D2'
+import useJointControl from './hooks/useJointControl'
 
 const movableJoints = Object.fromEntries(
   Object.entries(jointSchema).filter(([, schema]) =>

@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type * as THREE from 'three'
 import { MathUtils } from 'three'
 
 const noop = () => void 0
@@ -69,8 +70,11 @@ const useJointControl = (schemas: Record<string, JointSchema>) => {
       })
     )
 
-    setter.current = (values) =>
-      Object.entries(values).forEach(([name, value]) => setJoint[name]?.(value))
+    setter.current = (values) => {
+      for (const [name, value] of Object.entries(values)) {
+        setJoint[name]?.(value)
+      }
+    }
   }, [robot, schemas])
 
   const setJointValues = useCallback((values: Record<string, number>) => {

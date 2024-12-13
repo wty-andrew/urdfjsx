@@ -6,28 +6,24 @@
   "scripts": {
     "dev": "vite --open",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "biome check src",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/drei": "^9.80.2",
-    "@react-three/fiber": "^8.13.6",
+    "@react-three/drei": "^9.120.4",
+    "@react-three/fiber": "^8.17.10",
     "leva": "^0.9.35",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "three": "^0.155.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.171.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@types/three": "^0.155.0",
-    "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "eslint": "^8.47.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.5"
+    "@biomejs/biome": "^1.9.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
   }
 }
