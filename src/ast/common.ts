@@ -10,7 +10,7 @@ const makeLiteral = (value: Primitive): t.Literal => {
     case 'string':
       return t.stringLiteral(value)
     case 'number':
-      return t.numericLiteral(value)
+      return t.valueToNode(value) as t.NumericLiteral
     case 'boolean':
       return t.booleanLiteral(value)
     default:

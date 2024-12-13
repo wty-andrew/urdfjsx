@@ -6,21 +6,28 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install
 
       - name: Lint
-        run: yarn lint
-
-      - name: Build
-        run: yarn build
+        run: pnpm lint
 
       - name: Test
-        run: yarn test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build

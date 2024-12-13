@@ -1,12 +1,8 @@
-import _generate from '@babel/generator'
-import _traverse from '@babel/traverse'
+import generate from '@babel/generator'
+import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import prettier from 'prettier'
 import ts from 'typescript'
-
-// TODO: fix in babel 8 (https://github.com/babel/babel/issues/13855)
-const generate = _generate.default
-const traverse = _traverse.default
 
 export const removeExtraClosingTags = (program: t.Program) => {
   traverse(t.file(program), {

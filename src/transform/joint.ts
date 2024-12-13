@@ -8,7 +8,7 @@ import { eulerToQuaternion } from '../utils/index.js'
 const makeThreeObj = (type: string, ...args: number[]) =>
   t.newExpression(
     t.memberExpression(t.identifier('THREE'), t.identifier(type)),
-    R.map<number, t.NumericLiteral>(t.numericLiteral, args)
+    R.map(t.valueToNode, args)
   )
 
 const makeThreeVector3 = (vec: Vector3) => makeThreeObj('Vector3', ...vec)
@@ -69,9 +69,7 @@ export const declareJointSchema = (joints: Joint[]) => {
     t.variableDeclaration('const', [
       t.variableDeclarator(
         makeAnnotatedIdentifier('jointSchema', annotation),
-        t.objectExpression(
-          R.map<Joint, t.ObjectProperty>(makeJointSchema, joints)
-        )
+        t.objectExpression(R.map(makeJointSchema, joints))
       ),
     ])
   )
