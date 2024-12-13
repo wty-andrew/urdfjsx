@@ -6,17 +6,13 @@
   "configurations": [
     {
       "name": "Debug Program",
-      "program": "${workspaceFolder}/src/index.ts",
+      "program": "${workspaceFolder}/src/cli/index.ts",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "type": "node",
-      "runtimeArgs": [
-        "--loader",
-        "ts-node/esm"
-      ],
-      "runtimeVersion": "16"
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx"
     }
   ]
 }
